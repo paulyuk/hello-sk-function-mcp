@@ -1,6 +1,6 @@
 # Hello Semantic Kernel Function MCP
 
-This project is an Azure Function that uses Semantic Kernel with the Model Context Protocol (MCP) and Azure AI services.
+This project uses Microsoft Fabric AI services with Semantic Kernel code, wrapped with an Azure Function and exposed as a remote MCP server.
 
 ## Prerequisites
 
