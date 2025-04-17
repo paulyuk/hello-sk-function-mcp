@@ -5,7 +5,7 @@ This project is an Azure Function that uses Semantic Kernel with the Model Conte
 ## Prerequisites
 
 - [Azure Functions Core Tools](https://learn.microsoft.com/azure/azure-functions/functions-run-local)
-- [Python 3.11+](https://www.python.org/downloads/)
+- [Python 3.10+](https://www.python.org/downloads/)
 - [VS Code](https://code.visualstudio.com/) with [Azure Functions extension](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-azurefunctions)
 - [Azure AI Services resource](https://portal.azure.com) with deployed models
 - [Node.js and npm](https://nodejs.org/) (for running MCP Inspector)
@@ -19,7 +19,15 @@ This project is an Azure Function that uses Semantic Kernel with the Model Conte
    python -m venv .venv
    ```
 
-3. Configure your `local.settings.json` file with your Azure AI services:
+3. Create a deployment in your Azure AI services resource:
+   - In the Azure portal, navigate to your Azure OpenAI resource
+   - Go to "Model deployments" and click "Create new deployment"
+   - Select **model name**: `gpt-4o-mini`
+   - Select **model version**: `2024-07-18`
+   - Give your deployment a name (e.g., "chat")
+   - Complete the deployment creation
+
+4. Configure your `local.settings.json` file with your Azure AI services:
    ```json
    {
      "IsEncrypted": false,
@@ -33,7 +41,7 @@ This project is an Azure Function that uses Semantic Kernel with the Model Conte
    ```
 
    Replace the placeholder values with:
-   - `AZURE_OPENAI_DEPLOYMENT_NAME`: Your Azure OpenAI deployment name (defaults to "chat" if not specified)
+   - `AZURE_OPENAI_DEPLOYMENT_NAME`: The name you gave to your gpt-4o-mini deployment (e.g., "chat")
    - `AZURE_AI_INFERENCE_ENDPOINT`: Your Azure AI Inference endpoint URL (required)
 
 ## Running Locally
