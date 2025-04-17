@@ -33,14 +33,34 @@ execution_settings = AzureAIInferenceChatPromptExecutionSettings(
 
 app = func.FunctionApp(http_auth_level=func.AuthLevel.FUNCTION)
 import asyncio
+from semantic_kernel.contents.chat_history import ChatHistory
 
-@app.route(route="hello")
-def main(req: func.HttpRequest) -> func.HttpResponse:
-    logging.info("Starting Azure Function -> Main from /api/hello route")
-    return func.HttpResponse(
-            "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response.",
-            status_code=200
+@app.generic_trigger(
+    arg_name="context",
+    type="mcpToolTrigger",
+    toolName="hello_mcp",
+    description="Hello world.",
+    toolProperties="[]",
+)
+async def main(context) -> None:
+    """
+    A simple function that returns a greeting message.
+
+    Args:
+        context: The trigger context (not used in this function).
+
+    Returns:
+        str: A greeting message.
+    """
+    chat_history = ChatHistory()
+    chat_history.add_user_message("Hello, how are you?")
+
+    response = await chat_completion_service.get_chat_message_content(
+        chat_history=chat_history,
+        settings=execution_settings,
     )
+    logging.info(response)
+    return response
 
 if __name__ == "__main__":
     asyncio.run(main())
