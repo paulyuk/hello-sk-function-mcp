@@ -1,9 +1,11 @@
 import azure.functions as func
 import logging
 import os
+import asyncio
 from azure.ai.inference.aio import ChatCompletionsClient
 from azure.identity.aio import DefaultAzureCredential
-from semantic_kernel.connectors.ai.azure_ai_inference import AzureAIInferenceChatCompletion
+from semantic_kernel.connectors.ai.azure_ai_inference import AzureAIInferenceChatCompletion, AzureAIInferenceChatPromptExecutionSettings
+from semantic_kernel.contents.chat_history import ChatHistory
 
 ai_deployment_name = os.environ.get("AZURE_OPENAI_DEPLOYMENT_NAME", "chat")
 ai_endpoint = os.environ["AZURE_AI_INFERENCE_ENDPOINT"]
@@ -22,8 +24,6 @@ chat_completion_service = AzureAIInferenceChatCompletion(
     ),
 )
 
-from semantic_kernel.connectors.ai.azure_ai_inference import AzureAIInferenceChatPromptExecutionSettings
-
 execution_settings = AzureAIInferenceChatPromptExecutionSettings(
     max_tokens=100,
     temperature=0.5,
@@ -32,8 +32,6 @@ execution_settings = AzureAIInferenceChatPromptExecutionSettings(
 )
 
 app = func.FunctionApp(http_auth_level=func.AuthLevel.FUNCTION)
-import asyncio
-from semantic_kernel.contents.chat_history import ChatHistory
 
 @app.generic_trigger(
     arg_name="context",
