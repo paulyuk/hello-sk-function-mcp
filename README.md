@@ -24,28 +24,39 @@ The bases of inspiration to create this sample template are:
    ```
 
 3. Create a deployment in your Azure AI services resource:
-   - In the Azure portal, navigate to your Azure OpenAI resource
-   - Go to "Model deployments" and click "Create new deployment"
-   - Select **model name**: `gpt-4o-mini`
-   - Select **model version**: `2024-07-18`
-   - Give your deployment a name (e.g., "chat")
-   - Complete the deployment creation
 
-4. Configure your `local.settings.json` file with your Azure AI services:
+   ### Setup via AZD/Bicep
+
+   Simply
+   ```shell
+   azd provision
+   ```
+   ** Note all environment variablees needed for AI are outputed into the /.azure/<your env name>/.env file
+
+   ### Setup via Portal
+      - In the [portal](https://ai.azure.com), navigate to your Azure OpenAI resource
+      - Go to "Model deployments" and click "Create new deployment"
+      - Select **model name**: `gpt-4o-mini`
+      - Select **model version**: `2024-07-18`
+      - Give your deployment a name (e.g., `chat`)
+      - Complete the deployment creation
+
+4. Configure your `local.settings.json` file with your Azure AI services being careful to set `AZURE_AI_INFERENCE_ENDPOINT` using value from step 3:
    ```json
    {
      "IsEncrypted": false,
      "Values": {
-       "FUNCTIONS_WORKER_RUNTIME": "python",
-       "AzureWebJobsStorage": "UseDevelopmentStorage=true",
-       "AZURE_OPENAI_DEPLOYMENT_NAME": "chat",
-       "AZURE_AI_INFERENCE_ENDPOINT": "https://your-azure-ai-endpoint.com"
+         "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+         "FUNCTIONS_WORKER_RUNTIME": "python",
+         "AZURE_OPENAI_DEPLOYMENT_NAME": "chat",
+         "AZURE_AI_INFERENCE_ENDPOINT": "https://<your AI Services resource>.cognitiveservices.azure.com/",
+         "AZURE_OPENAI_API_VERSION": "2024-12-01-preview"
      }
    }
    ```
 
    Replace the placeholder values with:
-   - `AZURE_OPENAI_DEPLOYMENT_NAME`: The name you gave to your gpt-4o-mini deployment (e.g., "chat")
+   - `AZURE_OPENAI_DEPLOYMENT_NAME`: The name you gave to your gpt-4o-mini deployment (defaults to `"chat"`)
    - `AZURE_AI_INFERENCE_ENDPOINT`: Your Azure AI Inference endpoint URL (required)
 
 ## Running Locally
@@ -88,6 +99,14 @@ The bases of inspiration to create this sample template are:
    - Click on a tool
    - Run Tool
 
+## Deploying to Azure
+
+To deploy this function to Azure:
+
+```shell
+azd up
+```
+
 ## Authentication
 
 This function uses Azure Entra ID (formerly Azure Active Directory) for authentication via DefaultAzureCredential. Make sure you're logged in with the Azure CLI or have appropriate credentials configured.
@@ -97,11 +116,3 @@ This function uses Azure Entra ID (formerly Azure Active Directory) for authenti
 - If you encounter errors about missing environment variables, ensure your `local.settings.json` file has the correct values.
 - If authentication fails, run `az login` to log in with your Azure credentials.
 - If the MCP Inspector cannot connect, verify that your function app is running and the endpoint URL is correct.
-
-## Deploying to Azure
-
-To deploy this function to Azure:
-
-1. Create a Function App in Azure
-2. Deploy using VS Code Azure Functions extension or Azure CLI
-3. Configure application settings in the Azure portal with the same environment variables you used locally
