@@ -77,6 +77,9 @@ The bases of inspiration to create this sample template are:
 
 >**NOTE** if VNetEnabled = True you must remember to either use a jump box on that VNET, or add your local machine's public IP address to the Network -> Firewall settings for your AI Services resource, or you will receive errors like `Exception: HttpResponseError: (403) Public access is disabled. Please configure private endpoint.` or `Exception: HttpResponseError: (403) Access denied due to Virtual Network/Firewall rules.`
 
+
+## Connect to the *local* MCP server from a client/host
+
 ## Testing with MCP Inspector
 
 1. In a new terminal window, install and run MCP Inspector:
@@ -100,6 +103,25 @@ The bases of inspiration to create this sample template are:
    - List Tools
    - Click on a tool
    - Run Tool
+
+### Testing with VS Code - Github Copilot Agent mode
+
+1. **Add MCP Server** from command palette and add URL to your running Function app's SSE endpoint:
+
+    ```shell
+    http://0.0.0.0:7071/runtime/webhooks/mcp/sse
+    ```
+
+1. **List MCP Servers** from command palette and start the server
+1. In Copilot chat agent mode enter a prompt to trigger the tool, e.g., select some code and enter this prompt
+
+    ```plaintext
+    Say hello using mcp tool
+    ```
+
+1. When prompted to run the tool, consent by clicking **Continue**
+
+1. When you're done, press Ctrl+C in the terminal window to stop the Functions host process.
 
 ## Deploying to Azure
 
