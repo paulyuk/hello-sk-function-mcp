@@ -9,6 +9,7 @@ from semantic_kernel.contents.chat_history import ChatHistory
 
 ai_deployment_name = os.environ.get("AZURE_OPENAI_DEPLOYMENT_NAME", "chat")
 ai_endpoint = os.environ["AZURE_AI_INFERENCE_ENDPOINT"]
+api_version = os.environ.get("AZURE_OPENAI_API_VERSION", "2024-12-01-preview")
 
 # Check if ai_endpoint is empty or null
 if not ai_endpoint or ai_endpoint.strip() == "":
@@ -21,13 +22,14 @@ chat_completion_service = AzureAIInferenceChatCompletion(
         endpoint=f"{str(ai_endpoint).strip('/')}/openai/deployments/{ai_deployment_name}",
         credential=DefaultAzureCredential(),
         credential_scopes=["https://cognitiveservices.azure.com/.default"],
+        api_version=api_version,
     ),
 )
 
 execution_settings = AzureAIInferenceChatPromptExecutionSettings(
-    max_tokens=100,
-    temperature=0.5,
-    top_p=0.9,
+    max_completion_tokens=100,  # Changed from max_tokens to max_completion_tokens
+    temperature=1.0,
+    #  top_p=0.9,  #unsupported in mini model
     # extra_parameters={...},    # model-specific parameters
 )
 
