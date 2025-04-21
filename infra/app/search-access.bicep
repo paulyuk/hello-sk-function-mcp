@@ -1,6 +1,8 @@
 param principalId string
 param roleDefinitionIds array
 param searchAccountName string
+@allowed(['ServicePrincipal', 'User'])
+param principalType string = 'ServicePrincipal' // Default to ServicePrincipal, can be overridden with 'User' for Entra ID users
 
 resource search 'Microsoft.Search/searchServices@2021-04-01-preview' existing = {
   name: searchAccountName
@@ -13,5 +15,6 @@ resource storageRoleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-
   properties: {
     roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', roleDefinitionId)
     principalId: principalId
+    principalType: principalType
   }
 }]

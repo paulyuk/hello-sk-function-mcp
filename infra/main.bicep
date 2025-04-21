@@ -25,13 +25,14 @@ param storageAccountName string = ''
 param vNetName string = ''
 param disableLocalAuth bool = true
 
+@description('Id of the user or app to assign application roles')
+param principalId string = ''
+
 param searchServiceName string = ''
 param searchServiceSkuName string = 'standard'
 param searchIndexName string = 'gptkbindex'
 
 var aiHubName = 'hub-${resourceToken}'
-var aiHubFriendlyName = aiHubName
-var aiHubDescription = 'AI Hub'
 var aiProjectName = 'proj-${resourceToken}'
 var aiProjectFriendlyName = aiProjectName
 
@@ -95,7 +96,7 @@ module openAi 'core/ai/cognitiveservices.bicep' = {
     name: !empty(openAiServiceName) ? openAiServiceName : '${abbrs.cognitiveServicesAccounts}${resourceToken}'
     location: location
     tags: tags
-    publicNetworkAccess: azFunctionHostingPlanType == 'flexconsumption' ? 'Disabled' : 'Enabled'
+    publicNetworkAccess: vnetEnabled ? 'Disabled' : 'Enabled'
     sku: {
       name: openAiSkuName
     }
@@ -147,7 +148,7 @@ module foundry 'core/ai/foundryservices.bicep' = {
   scope: rg
   params: {
     name: aiHubName
-    projectName: aiProjectName
+    projectName: aiProjectFriendlyName
     location: location
     tags: tags
     friendlyName: aiHubName
@@ -167,13 +168,6 @@ module foundry 'core/ai/foundryservices.bicep' = {
     // Search
     aiSearchName: searchService.outputs.name
   }
-  dependsOn: [
-    openAi
-    searchService
-    storage
-    monitoring
-    //containerRegistry
-  ]
 }
 
 // User assigned managed identity to be used by the function app to reach storage and service bus
@@ -287,6 +281,18 @@ module storagePrivateEndpoint 'app/storage-PrivateEndpoint.bicep' = if (vnetEnab
   }
 }
 
+module openAiPrivateEndpoint 'app/openai-privateendpoint.bicep' = if (vnetEnabled){
+  name: 'openAiPrivateEndpoint'
+  scope: rg
+  params: {
+    location: location
+    tags: tags
+    virtualNetworkName: !empty(vNetName) ? vNetName : '${abbrs.networkVirtualNetworks}${resourceToken}'
+    openaiSubnetName: !vnetEnabled ? '' : serviceVirtualNetwork.outputs.peSubnetName
+    openAiResourceId: openAi.outputs.id
+  }
+}
+
 // Monitor application with Azure Monitor
 module monitoring './core/monitor/monitoring.bicep' = {
   name: 'monitoring'
@@ -313,9 +319,59 @@ module appInsightsRoleAssignmentApi './core/monitor/appinsights-access.bicep' = 
   }
 }
 
+// Allow access from api to Azure AI Services using a managed identity
+module openAiRoleUserAssignedIdentity 'app/openai-access.bicep' = {
+  scope: rg
+  name: 'openai-roles-uami'
+  params: {
+    principalId: apiUserAssignedIdentity.outputs.identityPrincipalId
+    openAiAccountResourceName: openAi.outputs.name
+    roleDefinitionIds: ['a97b65f3-24c7-4388-baec-2e87135dc908'] // Cognitive Services User
+  }
+}
+
+// Allow access from api to Azure AI Services using the interactive Entra user identity
+module openAiRoleEntraUser 'app/openai-access.bicep' = {
+  scope: rg
+  name: 'openai-roles-entra'
+  params: {
+    principalId: principalId
+    openAiAccountResourceName: openAi.outputs.name
+    roleDefinitionIds: ['a97b65f3-24c7-4388-baec-2e87135dc908'] // Cognitive Services User
+    principalType: 'User' // Always use User type for Entra user identity
+  }
+}
+
+// Allow access from api to Azure Search using a managed identity
+module searchRoleUserAssignedIdentity 'app/search-access.bicep' = {
+  scope: rg
+  name: 'search-roles-uami'
+  params: {
+    principalId: apiUserAssignedIdentity.outputs.identityPrincipalId
+    roleDefinitionIds: ['7ca78c08-252a-4471-8644-bb5ff32d4ba0', '8ebe5a00-799e-43f5-93ac-243d3dce84a7', '1407120a-92aa-4202-b7e9-c0e197c71c8f']  // Search Index Data Contributor, Search Index Data Owner, Search Index Data Reader
+    searchAccountName: searchService.outputs.name
+  }
+}
+
+// Allow access from api to Azure Search using the interactive Entra user identity
+module searchRoleEntraUserIdentity 'app/search-access.bicep' = {
+  scope: rg
+  name: 'search-roles'
+  params: {
+    principalId: principalId
+    roleDefinitionIds: ['7ca78c08-252a-4471-8644-bb5ff32d4ba0', '8ebe5a00-799e-43f5-93ac-243d3dce84a7', '1407120a-92aa-4202-b7e9-c0e197c71c8f']  // Search Index Data Contributor, Search Index Data Owner, Search Index Data Reader
+    searchAccountName: searchService.outputs.name
+    principalType: 'User' // Always use User type for Entra user identity
+  }
+}
+
 // App outputs
 output APPLICATIONINSIGHTS_CONNECTION_STRING string = monitoring.outputs.applicationInsightsConnectionString
 output AZURE_LOCATION string = location
 output AZURE_TENANT_ID string = tenant().tenantId
 output SERVICE_API_NAME string = api.outputs.SERVICE_API_NAME
 output AZURE_FUNCTION_NAME string = api.outputs.SERVICE_API_NAME
+output AZURE_OPENAI_DEPLOYMENT_NAME string = gptDeploymentName
+output AZURE_AI_INFERENCE_ENDPOINT string = openAi.outputs.endpoint
+output AZURE_OPENAI_API_VERSION string = azureOpenaiAPIVersion
+
