@@ -73,7 +73,9 @@ The bases of inspiration to create this sample template are:
    
    Alternatively, in VS Code, press `F5` or use the command palette to run "Tasks: Run Task" and select "func: host start".
 
-3. The function should start, and you'll see a URL for the local HTTP endpoint (typically http://localhost:7071).
+3. The function should start, and you'll see a URL for the local HTTP endpoint (typically http://0.0.0.0:7071).
+
+>**NOTE** if VNetEnabled = True you must remember to either use a jump box on that VNET, or add your local machine's public IP address to the Network -> Firewall settings for your AI Services resource, or you will receive errors like `Exception: HttpResponseError: (403) Public access is disabled. Please configure private endpoint.` or `Exception: HttpResponseError: (403) Access denied due to Virtual Network/Firewall rules.`
 
 ## Testing with MCP Inspector
 
