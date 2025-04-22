@@ -206,13 +206,14 @@ module api './app/api.bicep' = {
     applicationInsightsName: monitoring.outputs.applicationInsightsName
     appServicePlanId: appServicePlan.outputs.id
     runtimeName: 'python'
-    runtimeVersion: '3.10'
+    runtimeVersion: '3.11'
     storageAccountName: storage.outputs.name
     deploymentStorageContainerName: deploymentStorageContainerName
     identityId: apiUserAssignedIdentity.outputs.identityId
     identityClientId: apiUserAssignedIdentity.outputs.identityClientId
     appSettings: {
       AZURE_AI_INFERENCE_ENDPOINT: openAi.outputs.endpoint
+      AZURE_CLIENT_ID: apiUserAssignedIdentity.outputs.identityClientId
       AZURE_OPENAI_API_VERSION: azureOpenaiAPIVersion
       AZURE_OPENAI_DEPLOYMENT_NAME: gptDeploymentName
     }
