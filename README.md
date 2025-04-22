@@ -1,6 +1,6 @@
-# Hello Semantic Kernel Function MCP
+# Hello Foundry Agent Service with Semantic Kernel as a Function MCP Server
 
-This project uses Microsoft Fabric AI services with Semantic Kernel code, wrapped with an Azure Function and exposed as a remote MCP server.
+This project uses Microsoft Foundry AI services with Semantic Kernel code, wrapped with an Azure Function and exposed as a remote MCP server.
 
 The bases of inspiration to create this sample template are:
 - https://learn.microsoft.com/en-us/azure/ai-foundry/how-to/develop/semantic-kernel
