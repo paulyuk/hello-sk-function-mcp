@@ -212,6 +212,9 @@ module api './app/api.bicep' = {
     identityId: apiUserAssignedIdentity.outputs.identityId
     identityClientId: apiUserAssignedIdentity.outputs.identityClientId
     appSettings: {
+      AZURE_AI_INFERENCE_ENDPOINT: openAi.outputs.endpoint
+      AZURE_OPENAI_API_VERSION: azureOpenaiAPIVersion
+      AZURE_OPENAI_DEPLOYMENT_NAME: gptDeploymentName
     }
     virtualNetworkSubnetId: !vnetEnabled ? '' : serviceVirtualNetwork.outputs.appSubnetID
   }

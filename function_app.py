@@ -42,7 +42,7 @@ app = func.FunctionApp(http_auth_level=func.AuthLevel.FUNCTION)
     description="Hello world.",
     toolProperties="[]",
 )
-async def main(context) -> None:
+async def hello_mcp(context) -> None:
     """
     A simple function that returns a greeting message.
 
@@ -65,4 +65,4 @@ async def main(context) -> None:
     return response_str
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    asyncio.run(hello_mcp())
