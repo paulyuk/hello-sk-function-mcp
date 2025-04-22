@@ -35,7 +35,7 @@ The bases of inspiration to create this sample template are:
    ```shell
    azd provision
    ```
-   ** Note all environment variablees needed for AI are outputed into the /.azure/<your env name>/.env file
+   ** Note all environment variables needed for AI Foundry are outputed into the /.azure/<your env name>/.env file
 
    ### Setup via Portal
       - In the [portal](https://ai.azure.com), navigate to your Azure OpenAI resource
