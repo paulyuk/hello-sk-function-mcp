@@ -48,3 +48,4 @@ output endpoint string = account.properties.endpoint
 output id string = account.id
 output name string = account.name
 output location string = account.location
+output apiVersion string = account.apiVersion

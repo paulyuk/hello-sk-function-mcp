@@ -40,6 +40,12 @@ param openAiServiceName string = ''
 param openAiSkuName string = 'S0'
 
 param gptDeploymentName string = 'chat'
+@description('Version of the OpenAI API to use:')
+@allowed([
+  '2024-12-01-preview'
+  '2025-04-01-preview'
+])
+param openAiApiVersion string = '2024-12-01-preview'
 
 @minLength(1)
 @description('Name of the GPT model to deploy:')
@@ -49,8 +55,6 @@ param gptDeploymentName string = 'chat'
   'gpt-4o-mini'
 ])
 param gptModelName string = 'gpt-4o-mini'
-
-param azureOpenaiAPIVersion string = '2024-07-18'
 
 @minLength(1)
 @description('GPT model deployment type:')
@@ -214,7 +218,7 @@ module api './app/api.bicep' = {
     appSettings: {
       AZURE_AI_INFERENCE_ENDPOINT: openAi.outputs.endpoint
       AZURE_CLIENT_ID: apiUserAssignedIdentity.outputs.identityClientId
-      AZURE_OPENAI_API_VERSION: azureOpenaiAPIVersion
+      AZURE_OPENAI_API_VERSION: openAiApiVersion
       AZURE_OPENAI_DEPLOYMENT_NAME: gptDeploymentName
     }
     virtualNetworkSubnetId: !vnetEnabled ? '' : serviceVirtualNetwork.outputs.appSubnetID
@@ -375,7 +379,8 @@ output AZURE_LOCATION string = location
 output AZURE_TENANT_ID string = tenant().tenantId
 output SERVICE_API_NAME string = api.outputs.SERVICE_API_NAME
 output AZURE_FUNCTION_NAME string = api.outputs.SERVICE_API_NAME
+output AZURE_FUNCTION_URL string = api.outputs.SERVICE_URL
+output AZURE_FUNCTION_MCP_URL string = '${api.outputs.SERVICE_URL}/runtime/webhooks/mcp/sse'
 output AZURE_OPENAI_DEPLOYMENT_NAME string = gptDeploymentName
 output AZURE_AI_INFERENCE_ENDPOINT string = openAi.outputs.endpoint
-output AZURE_OPENAI_API_VERSION string = azureOpenaiAPIVersion
-
+output AZURE_OPENAI_API_VERSION string = openAiApiVersion

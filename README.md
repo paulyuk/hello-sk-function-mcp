@@ -127,13 +127,56 @@ The bases of inspiration to create this sample template are:
 
 1. When you're done, press Ctrl+C in the terminal window to stop the Functions host process.
 
-## Deploying to Azure
+## Deploy to Azure for Remote MCP
 
-To deploy this function to Azure:
+Run this [azd](https://aka.ms/azd) command to provision the function app, with any required Azure resources, and deploy your code:
 
 ```shell
 azd up
 ```
+
+> **Note** [API Management]() can be used for improved security and policies over your MCP Server, and [App Service built-in authentication](https://learn.microsoft.com/en-us/azure/app-service/overview-authentication-authorization) can be used to set up your favorite OAuth provider including Entra.  
+
+## Connect to your *remote* MCP server function app from a client
+
+Your client will need a key in order to invoke the new hosted SSE endpoint, which will be of the form `https://<funcappname>.azurewebsites.net/runtime/webhooks/mcp/sse`. The hosted function requires a system key by default which can be obtained from the [portal](https://learn.microsoft.com/en-us/azure/azure-functions/function-keys-how-to?tabs=azure-portal) or the CLI (`az functionapp keys list --resource-group <resource_group> --name <function_app_name>`). Obtain the system key named `mcp_extension`.
+
+### Connect to remote MCP server in MCP Inspector
+For MCP Inspector, you can include the key in the URL: 
+```plaintext
+https://<funcappname>.azurewebsites.net/runtime/webhooks/mcp/sse?code=<your-mcp-extension-system-key>
+```
+
+### Connect to remote MCP server in VS Code - GitHub Copilot
+For GitHub Copilot within VS Code, you should set the key as the `x-functions-key` header in `mcp.json`, and you would use `https://<funcappname>.azurewebsites.net/runtime/webhooks/mcp/sse` for the URL. The following example is from the [mcp.json](.vscode/mcp.json) file included in this repository and uses an input to prompt you to provide the key when you start the server from VS Code.  
+
+1. Click Start on the server `remote-mcp-function`, inside the [mcp.json](.vscode/mcp.json) file:
+
+1. Enter the name of the function app that you created in the Azure Portal, when prompted by VS Code.
+
+1. Enter the `Azure Functions MCP Extension System Key` into the prompt. You can copy this from the Azure portal for your function app by going to the Functions menu item, then App Keys, and copying the `mcp_extension` key from the System Keys.
+
+1. In Copilot chat agent mode enter a prompt to trigger the tool, e.g., select some code and enter this prompt
+
+    ```plaintext
+    Say Hello using MCP tool
+    ```
+
+## Redeploy your code
+
+You can run the `azd up` command as many times as you need to both provision your Azure resources and deploy code updates to your function app.
+
+>[!NOTE]
+>Deployed code files are always overwritten by the latest deployment package.
+
+## Clean up resources
+
+When you're done working with your function app and related resources, you can use this command to delete the function app and its related resources from Azure and avoid incurring any further costs:
+
+```shell
+azd down
+```
+
 
 ## Authentication
 
@@ -144,3 +187,4 @@ This function uses Azure Entra ID (formerly Azure Active Directory) for authenti
 - If you encounter errors about missing environment variables, ensure your `local.settings.json` file has the correct values.
 - If authentication fails, run `az login` to log in with your Azure credentials.
 - If the MCP Inspector cannot connect, verify that your function app is running and the endpoint URL is correct.
+- Irregular behaviors, 404 resource not found errors, and more will happen if `AZURE_OPENAI_API_VERSION` is set to too old a version for these SDKs.  It is recommended to set `"AZURE_OPENAI_API_VERSION": "2024-12-01-preview"` (or later) in local.settings.json locally, and in your deployed Azure Function deployment in the Environment Variables (this is done for you by default using `azd up`'s bicep files). 
