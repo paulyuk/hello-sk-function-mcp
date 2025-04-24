@@ -6,6 +6,10 @@ The bases of inspiration to create this sample template are:
 - https://learn.microsoft.com/en-us/azure/ai-foundry/how-to/develop/semantic-kernel
 - https://aka.ms/mcp-remote
 
+Use cases for this include
+1. Any Foundry agent you've created can be a remote MCP server!
+2. Instant access of your agentic code to MCP clients like Github Copilot and Copilot Studio
+
 ## Architecture
 
 ![Architecture Diagram](./architecture-diagram.svg)
